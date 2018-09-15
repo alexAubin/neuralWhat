@@ -20,15 +20,13 @@ class View() :
         self.fps = 60
         self.fpsClock = pygame.time.Clock()
 
-        self.cycle = 0
-        self.cycleSpeed = random.randint(10,200)/10.0
-        self.currentImage = 0
+        self.speed = 0.1
 
     def loadImages(self):
 
         self.images_path = []
         self.images = []
-        for path in glob.glob("../christ/*.jpeg"):
+        for path in glob.glob("./"+word+"/*.jpeg"):
             self.images_path.append(path)
             self.images.append(pygame.image.load(path))
 
@@ -39,7 +37,7 @@ class View() :
 
         self.font = pygame.font.Font("./Lack-Regular.otf",50)
         self.text1 = self.makeText("What is")
-        self.text2 = self.makeText("'christ'")
+        self.text2 = self.makeText("'"+word+"' ?")
 
 
     def change_direction(self):
@@ -114,12 +112,12 @@ class View() :
 
         current_max = max(self.coordinates)
         current_max_coordinate = [i for i,j in enumerate(self.coordinates) if j == current_max][0]
-        if current_max >= 0.95 and current_max_coordinate == self.direction:
+        if current_max >= 0.99 and current_max_coordinate == self.direction:
             self.change_direction()
-        elif current_max <= 0.80 and random.randint(0,100)<7:
+        elif current_max <= 0.80 and random.randint(0,100)<6:
             self.change_direction()
 
-        self.speed = max((1-current_max)/10,0.0001)
+        self.speed = 0.9 * self.speed + 0.1 * max((1-current_max)/7.5,0.02)
 
         self.coordinates[self.direction] += self.speed
         self.renorm_coordinates()
@@ -132,14 +130,14 @@ class View() :
 
         i = 0
         for coordinate, image in coordinates_and_images:
-            render_image = self.blur(image, (25*(1-coordinate))**1.3)
+            render_image = self.blur(image, (25*(1-coordinate))**1.5)
             render_image.set_alpha(int((1-coordinate)*255))
             if i == 0:
                 self.screen.blit(render_image, (0,0))
             else:
                 self.screen.blit(render_image, (0,0), special_flags=pygame.BLEND_RGBA_MIN)
             i+=1
-            if i >= 3:
+            if i >= 5:
                 break
 
         #size = textIn.get_width() + 2, textIn.get_height() + 2
@@ -160,4 +158,5 @@ def main():
     while True:
         v.mainLoop()
 
+word = sys.argv[1]
 main()
